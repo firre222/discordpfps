@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Avatar Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            padding: 50px;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #7289da;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #5b6e9b;
+        }
+        img {
+            margin-top: 10px;
+            width: 70%;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #avatar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        #download-container {
+            margin-top: 20px;
+        }
+        #download-button {
+            margin-top: 20px;
+            display: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ffffff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #download-button:hover {
+            background-color: #ffffff;
+        }
+        .discord-tos {
+            font-size: 70%;
+            color: #696868;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        async function fetchAvatar() {
+            const userId = document.getElementById('discord-id').value.trim();
+            const avatarElement = document.getElementById('avatar');
+            const errorElement = document.getElementById('error-message');
+            const downloadButton = document.getElementById('download-button');
+            
+            if (!userId) {
+                alert('Please enter a user ID!');
+                return;
+            }
+
+            avatarElement.style.display = 'none';
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+            downloadButton.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/avatar/${userId}`);
+                const data = await response.json();
+                
+                if (data.avatarUrl) {
+                    avatarElement.src = data.avatarUrl;
+                    avatarElement.style.display = 'block';
+                    
+                    downloadButton.style.display = 'inline-block';
+                    downloadButton.setAttribute('href', data.avatarUrl);
+                    downloadButton.setAttribute('download', `${userId}-avatar.png?size=1024`);  // Set the filename for download
+                } else {
+                    errorElement.textContent = data.error || 'Avatar not found.';
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorElement.textContent = 'An error occurred while fetching the avatar.';
+                errorElement.style.display = 'block';
+            }
+        }
+    </script>
+
+    <div class="container">
+        <h1>Discord Avatar Lookup</h1>
+        <p>Enter a Discord User ID to view their profile picture:</p>
+        <input type="text" id="discord-id" placeholder="User ID">
+        <button onclick="fetchAvatar()">Show Avatar</button>
+
+        <div id="avatar-container">
+            <!-- Avatar image will appear here -->
+            <img id="avatar" style="display: none;" />
+            <div id="error-message" style="display: none; color: red;"></div>
+            <!-- Download button -->
+            <a id="download-button" href="" download="">
+                <button>Download Avatar</button>
+            </a>
+        </div>
+
+    <div class="discord-tos">
+        <p>Dublino is not affiliated or endorsed with/by Discord.</p>
+    </div>
+
+    </div>
+    <script src="server.js"></script>
+</body>
+</html>
